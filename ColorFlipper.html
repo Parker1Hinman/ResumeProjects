@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial scale=1.0">
+        <title>Color Flipper</title>
+        <style>
+            body {
+                background-color:cadetblue;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                min-height: 80vh;
+            }
+            .custom-wrapper {
+                background-color:white;
+                padding: 20px;
+                border-radius: 15px;
+                box-shadow: 0 0 20px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                font-size: 25px;
+            }
+            h1 {
+                margin: 5px;
+                font-size: 36px;
+                font-family: sans-serif;
+            }
+            #btn {
+                background-color: white;
+                border-radius: 5px;
+                font-family:sans-serif;
+                font-size: 20px;
+            }
+            #actualColor {
+                color: cadetblue;
+                margin-bottom: 10px;
+                margin-top: 0px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="custom-wrapper">
+            <h1>Color Flipper</h1>
+            <p>Background Color: </p>
+            <p id="actualColor">Cadet Blue</p>
+            <button id="btn">Click Me</button>
+        </div>
+        <script>
+            const colors = ['green','blue','navy','red','yellow','aquamarine'];
+            const btn = document.getElementById('btn');
+            const color = document.querySelector('.color')
+
+            btn.addEventListener('click', function() {
+                let randomNumber = Math.floor((Math.random()*colors.length));
+                
+                document.body.style.backgroundColor = colors[randomNumber];
+                actualColor.textContent = colors[randomNumber];
+                actualColor.style.color = colors[randomNumber];    
+            }) 
+        </script>
+    </body>
+</html>

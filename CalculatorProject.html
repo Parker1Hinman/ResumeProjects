@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content='width=device-width, initial-scale=1.0' >
+        <title>Calculator</title>
+        <style>
+            body {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                background-color: #2d545e;
+                min-height: 80vh;
+            }
+            .box {
+                background-color: black;
+                border-radius: 20px;
+                padding: 20px;
+                box-shadow:0 0 80px #2d91a5;
+            }
+            #display {
+                background-color: black;
+                color: white;
+                text-align: right;
+                width: 70%;
+
+            }
+            h1 {
+                color: white;
+            }
+            .button-container {
+                display: grid;
+                grid-template-columns: repeat(1fr,4);
+                grid-gap: 10px;
+                
+            }
+            .actionBtn, .normalBtn {
+                height: 40px;
+                width: 23%;
+                color: white;
+                background-color: black;
+                border-radius: 5px;
+                
+                
+            }
+        </style>
+    </head>
+    <body>
+        <div class="box">
+            <h1>Calculator</h1>
+            <div class="button-container">
+                <div class="row1">
+                    <div class="display-container">
+                        <input id="display" value="0" readonly>
+                        <button class="actionBtn" id="clear" >C</button>
+                    </div>
+                    
+                    
+                </div>
+                <div class="row2">
+                    <button class="normalBtn" id="seven" value="7">7</button>
+                    <button class="normalBtn" id="eight" value="8">8</button>
+                    <button class="normalBtn" id="nine" value="9">9</button>
+                    <button class="actionBtn" id="divide">/</button>
+                </div>
+                <div class="row3">
+                    <button class="normalBtn" id="four" value="4">4</button>
+                    <button class="normalBtn" id="five" value="5">5</button>
+                    <button class="normalBtn" id="six" value="6">6</button>
+                    <button  class="actionBtn"id="multiply">*</button>
+                </div>
+                <div class="row4">
+                    <button class="normalBtn" id="one" value="1">1</button>
+                    <button class="normalBtn" id="two" value="2">2</button>
+                    <button class="normalBtn" id="three" value="3">3</button>
+                    <button class="actionBtn" id="minus">-</button>
+                </div>
+                <div class="row5">
+                    <button class="normalBtn" value='0' id="zero">0</button>
+                    <button class="normalBtn" id="decimal btn" value=".">.</button>
+                    <button class="actionBtn" id="solve">=</button>
+                    <button class="actionBtn" id="plus">+</button>
+                </div>
+            </div>
+        </div>
+        <script>
+            let display = document.getElementById('display');
+            let normalBtn = document.querySelectorAll('.normalBtn');
+            let actionBtn = document.querySelectorAll('.actionBtn')
+
+            
+
+            normalBtn.forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    if (display.value == 0) {
+                        display.value = btn.value;
+                    } else {
+                        display.value += btn.value;
+                    }
+                });
+            });
+
+            actionBtn.forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    if (btn.id == 'clear') {
+                        display.value = 0;
+                    } else if (btn.id == 'plus') {
+                        display.value += '+';
+                    } else if (btn.id == 'minus') {
+                        display.value += '-';
+                    } else if (btn.id == 'multiply') {
+                        display.value += '*';
+                    } else if (btn.id == 'divide') {
+                        display.value += '/';
+                    } else if (btn.id == 'solve') {
+                        try {
+                            display.value = eval(display.value);
+                        } catch {
+                            display.value = "Error";
+                        }
+                    }
+                });
+            });
+
+
+
+            
+        </script>
+    </body>
+</html>
