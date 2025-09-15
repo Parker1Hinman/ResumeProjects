@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1.0">
+        <title>To-Do-List</title>
+        <style>
+            body {
+                background-color: white;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                min-height: 80vh;
+            }
+            .container {
+                border-radius: 20px;
+                box-shadow: 0 0 20px black;
+                padding: 20px
+            }
+
+            #display {
+                color: black;
+                font-family: sans-serif;
+            }
+            .buttons {
+                background-color: navy;
+                color: white;
+                border-radius: 5px;
+                padding: 2px;
+                margin: 5px;
+            }
+            .GreenButton {
+                background-color: green;
+                color: white;
+                border-radius: 5px;
+                padding: 2px;
+                margin: 5px;
+                align-items: right;
+            }
+            .RedButton {
+                background-color: red;
+                color: white;
+                border-radius: 5px;
+                padding: 2px;
+                margin: 5px;
+                align-items: right;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>To-Do List</h1>
+            <form id="toDoForm">
+                <input type="text" id="display" placeholder="Enter Task Here">
+                <button class='buttons' id="addButton" type="submit">Add Task</button>
+            </form>
+            <div class="list">
+                <div class="toDoListClass">
+                    <ol id="toDoList"></ol>
+                </div>
+                <div class="completedListClass"></div>
+                <ul id="completedList"></ul>
+            </div>
+            <div class="clearButton"></div>
+        </div>
+        <script>
+            //Link all inputs to their id or class in the html
+            const addBtn = document.getElementById('addButton');
+            const toDoList = document.getElementById('toDoList');
+            const toDoForm = document.getElementById('toDoForm');
+            const item = document.getElementById('display');
+            const completedList = document.getElementById('completedList');
+            const clearButton = document.querySelector('.clearButton');
+            const H1Location = document.querySelector('.completedListClass')
+
+            function toggleClearButton() {
+                if (toDoList.children.length > 0 || completedList.children.length >0) {
+                    clearButton.style.display = 'block';
+                } else {
+                    clearButton.style.display = 'none';
+                }
+            }
+
+            toggleClearButton();
+            /*whenever the form is submitted with the Add task Button
+            use prevent default, which prevents the page from reloading
+            as that is the default response when submitting a form in js.
+            
+            Then use the doc.createElement() to create a new list item,
+            complete button, and clear all button. Assign the buttons classes
+            for styling later, and values that appear on them. add event listeners
+            for these buttons too*/
+            toDoForm.addEventListener('submit', (e) => {
+                e.preventDefault()
+
+                const taskText = item.value.trim();
+                if (taskText !== '') {
+                    const createNewListItem = document.createElement('li');
+                    const createCompleteButton = document.createElement('button');
+                    const createH1 = document.createElement('h1');
+                    const createDeleteButton = document.createElement('button');
+
+                    createCompleteButton.textContent = 'Complete';
+                    createCompleteButton.classList = 'GreenButton';
+                    
+                    createCompleteButton.addEventListener('click', () => {
+                        const completedItem = document.createElement('li')
+                        completedItem.textContent = taskText;
+                        createH1.textContent = 'Completed:'
+                        H1Location.appendChild(createH1);
+                        completedList.appendChild(completedItem);
+                        createNewListItem.remove();
+                        toggleClearButton();
+                    });
+
+                    createDeleteButton.textContent = 'Delete';
+                    createDeleteButton.classList = 'RedButton';
+
+                    createDeleteButton.addEventListener('click', () => {
+                        createNewListItem.remove()
+                        toggleClearButton();
+                    });
+
+                    
+
+                    createNewListItem.textContent = taskText;
+                    createNewListItem.appendChild(createCompleteButton);
+                    createNewListItem.appendChild(createDeleteButton);
+                    toDoList.appendChild(createNewListItem);
+
+                    item.value = '';
+                    toggleClearButton();
+                };
+            });
+        //Clear Button Here
+        
+        const createClearButton = document.createElement('button');
+        createClearButton.classList = 'buttons';
+        createClearButton.textContent = 'Clear All';
+
+        createClearButton.addEventListener('click', () => {
+            toDoList.innerHTML = '';
+            completedList.innerHTML = '';
+            H1Location.innerHTML = '';
+            toggleClearButton();
+        });
+        
+        clearButton.appendChild(createClearButton);
+        </script>
+    </body>
+</html>
