@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1.0">
+        <title>Quiz App</title>
+        <link rel="stylesheet" href="QuizAppV3.css">
+    </head>
+    <body>
+        <div class="main">
+            <nav class="nav"><h1 id="pageLocation">Deck Inventory</h1></nav>
+            <div class="deckInventoryPage">
+                <button class="button" id="createDeckButton">Create Deck</button>
+            </div>
+            <div id="viewDeckContainer"></div>
+            <div id="nameDeckContainer" class="hidden">
+                <input type="text" id="deckName" class="inputBox" placeholder="Enter Deck Name">
+                <button class="button" id="confirmDeckNameButton">Confirm</button>
+            </div>
+            <div id="addCardContainer" class="hidden">
+                <input type="text" class="inputBox" id="termInputBox" placeholder="Enter Term">
+                <input type="text" class="inputBox" id="definitionInputBox" placeholder="Enter Definition">
+                <button class="button" id="addCardButton">Add Card</button>
+                <button class="button" id="finishDeckButton">Finish Deck</button>
+            </div>
+            <div id="cancelButtonContainer" class="hidden">
+                <button class="button"id="cancelButton">x</button>
+            </div>
+            <div class="cardContainer hidden">
+                <div class="card-inner" id="cardInner">
+                    <div class="" id="front"></div>
+                    <div class="" id="back"></div>
+                </div>
+                <button class="button" id="previousButton">Back</button>
+                <button class="button" id="nextButton">Next</button>
+            </div>
+        </div>
+        <script type="module" src="QuizAppV3.js"></script>
+    </body>
+</html>

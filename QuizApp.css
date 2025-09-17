@@ -1,0 +1,112 @@
+body {
+    display: flex;
+    flex-direction: column;
+    background-color: white;
+    height: 100vh;
+}
+
+.button {
+    background-color: navy;
+    color: white;
+    border-radius: 5px;
+    margin: 5px;
+}
+.nav {
+    position: fixed;
+    display: flex;
+    top:0;
+    left:0;
+    box-shadow: 0 0 10px 1px black;
+    z-index: 100;
+    padding: 10px;
+    background: white;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+}
+.inputBox {
+    background-color: white;
+    border-radius: 3px;
+    color: black;
+    padding: 5px;
+    margin: 10px;
+}
+.hidden {
+    display: none;
+}
+#viewDeckContainer {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    border-radius: 5px;
+    padding: 10px;
+    margin: 10px;
+}
+.deck {
+    font-family: sans-serif;
+    border-radius: 5px;
+    box-shadow: 0 5px 5px 0;
+    height: 120px;
+    width: 120px;
+    margin-top: 80px;
+    padding: 10px;
+}
+#createDeckButton {
+    display: flex;
+    position: fixed;
+    top: 105px;
+    right: 20px;
+}
+.blurred {
+    filter: blur(3px);
+}
+.centered {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 80vh;
+}
+.centeredDeck {
+    display:flex;
+    align-items:center;
+    justify-content: center;
+    height: 120px;
+    width: 200px;
+}
+.cardContainer {
+    position: fixed;
+    top: 25%;
+    left: 33%;
+}
+.card-inner {
+    display:flex;
+    align-items: center;
+    justify-content: center;
+    background-color: transparent;
+    border-radius: 5px;
+    width: 400px;
+    height: 240px;
+    box-shadow: 0 0 10px 2px black;
+    position: relative;
+    background-color: transparent;
+    transform-style: preserve-3d;
+    transition: transform 0.6s;
+}
+
+.card-inner.flipped {
+    transform: rotateX(180deg);
+}
+
+#front, #back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    display: flex;
+    justify-content:center;
+    align-items: center;
+    background: white;
+    
+}
+#back {
+    transform: rotateX(180deg);
+}
