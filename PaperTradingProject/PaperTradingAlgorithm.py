@@ -14,16 +14,19 @@ import plotly.express as px
 
 load_dotenv()
 
-API_KEY_SECRET = os.getenv('API_KEY_SECRET')
-API_KEY = os.getenv('API_KEY')
+ALPACA_API_KEY_SECRET = os.getenv('ALPACA_API_KEY_SECRET')
+ALPACA_API_KEY = os.getenv('ALPACA_API_KEY')
+ALPHA_VANTAGE_API_KEY = os.getenv('ALPHA_VANTAGE_API_KEY')
 
 def trading_algo():
     os.environ['APCA_API_BASE_URL'] = 'https://paper-api.alpaca.markets'
 
-    api = tradeAPI.REST(API_KEY, API_KEY_SECRET, api_version='v2')
+    api = tradeAPI.REST(ALPACA_API_KEY, ALPACA_API_KEY_SECRET, api_version='v2')
     account = api.get_account()
 
     return
+stockTickerInput = ''
+get_stock_info = f'https://www.alphavantage.co/query?function=HISTORICAL_OPTIONS&symbol={stockTickerInput}&apikey{ALPHA_VANTAGE_API_KEY}&datatype=csv'
 
 df = pd.read_csv()
 
