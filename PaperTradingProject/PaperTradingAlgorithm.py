@@ -30,39 +30,72 @@ app = Dash()
 
 app.title = 'Stock Trading Dashboard'
 app.layout = html.Div([
-                    dcc.Input(id='stockTickerInput',type='text',placeholder='Ex. APPL'),
-                    html.Button('Search',id='searchConfirmation', n_clicks=0, style={
-        "padding": "5px 10px",
-        "borderRadius": "3px",
-        "boxShadow": "0px 0px 12px -2px rgba(0,0,0,0.5)",
-        "lineHeight": "1.25",
-        "background": "black",
-        "color": "white",
-        "fontSize": "16px",
-        "letterSpacing": ".08em",
-        "textTransform": "uppercase",
-        "position": "relative",
-        "transition": "background-color .6s ease",
-        "margin":"5px"
-    }
-), 
-                    html.Button('Trading Algorithm: On', id='AutoTraderOn/Off', n_clicks=0, style={
-                        "padding": "5px 10px",
-                        "borderRadius": "3px",
-                        "boxShadow": "0px 0px 12px -2px rgba(0,0,0,0.5)",
-                        "lineHeight": "1.25",
-                        "background": "black",
-                        "color": "white",
-                        "fontSize": "16px",
-                        "letterSpacing": ".08em",
-                        "textTransform": "uppercase",
-                        "position": "relative",
-                        "transition": "background-color .6s ease",
-                        "margin":"5px"
-                    }),
-                    dcc.Input(id=''),
-                    dcc.Graph(id='stockHistoryGraph')
-                    ])
+    html.Div([
+        html.Div([
+            html.H1('Stock Look Up', style={
+                "lineHeight": "1.25",
+                "fontSize": "32px",
+                "letterSpacing": ".08em",
+                "textTransform": "uppercase",
+                "margin": "0",
+                "paddingRight": "20px"
+            }),
+            dcc.Input(id='stockTickerInput', type='text', placeholder='Ex. AAPL', style={
+                "height": "20px",
+                "fontSize": "16px",
+                "marginRight": "10px"
+            }),
+            html.Button('Search', id='searchConfirmation', n_clicks=0, style={
+                "padding": "5px 10px",
+                "borderRadius": "3px",
+                "boxShadow": "0px 0px 12px -2px rgba(0,0,0,0.5)",
+                "lineHeight": "1.25",
+                "background": "black",
+                "color": "white",
+                "fontSize": "16px",
+                "letterSpacing": ".08em",
+                "textTransform": "uppercase",
+                "position": "relative",
+                "transition": "background-color .6s ease",
+                "margin": "5px"
+            }), 
+            html.Button('Purchase Options', id="purchaseOptionsButton", n_clicks=0, style={
+                "padding": "5px 10px",
+                "borderRadius": "3px",
+                "boxShadow": "0px 0px 12px -2px rgba(0,0,0,0.5)",
+                "lineHeight": "1.25",
+                "background": "black",
+                "color": "white",
+                "fontSize": "16px",
+                "letterSpacing": ".08em",
+                "textTransform": "uppercase",
+                "position": "relative",
+                "transition": "background-color .6s ease",
+                "margin": "5px",
+            }), 
+            html.Button('Trading Algorithm: Off', id='AutoTraderOn/Off', n_clicks=0, style={
+                "padding": "5px 10px",
+                "borderRadius": "3px",
+                "boxShadow": "0px 0px 12px -2px rgba(0,0,0,0.5)",
+                "lineHeight": "1.25",
+                "width": "290px",
+                "background": "black",
+                "color": "white",
+                "fontSize": "16px",
+                "letterSpacing": ".08em",
+                "textTransform": "uppercase",
+                "position": "relative",
+                "transition": "background-color .6s ease",
+                "margin": "5px"
+            })
+        ], style={"display": "flex", "alignItems": "center"})
+    ], style={
+        "display": "flex",
+        "alignItems": "center",
+        "marginBottom": "10px"
+    }),
+    dcc.Graph(id='stockHistoryGraph')
+])
 
 @callback(
     Output('stockHistoryGraph', 'figure'),
@@ -71,26 +104,30 @@ app.layout = html.Div([
     Input('AutoTraderOn/Off', 'n_clicks'),
     State('stockTickerInput', 'value')
 )
+def update_graph(_, auto_trader_clicks, tickerSymbol):
+    # Determine button label
+    button_text = "Trading Algorithm: On " if auto_trader_clicks % 2 == 1 else "Trading Algorithm: Off"
 
-def update_graph(_,tickerSymbol):
-    get_stock_info_url = f'https://www.alphavantage.co/query?function=TIME_SERIES_MONTHLY&symbol={tickerSymbol}&apikey={ALPHA_VANTAGE_API_KEY}&datatype=csv'
+    # Handle empty or missing ticker
+    if not tickerSymbol:
+        fig = px.line(title='Please enter a ticker symbol.')
+        return fig, button_text
+
+    # Try fetching and plotting data
     try:
+        get_stock_info_url = f'https://www.alphavantage.co/query?function=TIME_SERIES_MONTHLY&symbol={tickerSymbol}&apikey={ALPHA_VANTAGE_API_KEY}&datatype=csv'
         df = pd.read_csv(get_stock_info_url)
-        df['timestamp'] = pd.to_datetime(df['timestamp'])
-        fig = px.line(df, x='timestamp', y='close', title=f'{tickerSymbol} Closing Prices')
-        return fig
-    except Exception as e:
-        if df.shape[1] == 1 and 'Thank you for using Alpha Vantage' in df.columns[0]:
-            print("Rate limit exceeded.")
-        else:
-            print(f'Error fetching data: {e}')
-            return px.line(title=f'Error loading data for {tickerSymbol}')
 
-def auto_trader_button_text(n_clicks):
-    if n_clicks % 2 == 1:
-        return "Trading Algorithm: Off"
-    else:
-        return "Trading Algorithm: On"
-    
+        # Check for rate limit message
+        if df.shape[1] == 1 and 'Thank you for using Alpha Vantage' in df.columns[0]:
+            fig = px.line(title='Rate limit exceeded. Try again later.')
+        else:
+            df['timestamp'] = pd.to_datetime(df['timestamp'])
+            fig = px.line(df, x='timestamp', y='close', title=f'{tickerSymbol} Closing Prices')
+    except Exception as e:
+        print(f'Error fetching data: {e}')
+        fig = px.line(title=f'Error loading data for {tickerSymbol}')
+
+    return fig, button_text
 if __name__ == '__main__':
     app.run(debug=True)
