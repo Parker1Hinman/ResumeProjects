@@ -25,27 +25,30 @@ def trading_algo():
     account = api.get_account()
 
     return
-stockTickerInput = ''
-get_stock_info = f'https://www.alphavantage.co/query?function=HISTORICAL_OPTIONS&symbol={stockTickerInput}&apikey{ALPHA_VANTAGE_API_KEY}&datatype=csv'
-
-df = pd.read_csv()
 
 app = Dash()
 
 app.title = 'Stock Trading Dashboard'
 app.layout = [  html.Div(children=(
-                    dcc.Input(id='stockTickerInput',type='text',placeholder='Ex. APPL'))), 
-                html.Div(children=(  
-                    dcc.Graph(id='stockHistoryGraph')
-                ))]
+                    dcc.Input(id='stockTickerInput',type='text',placeholder='Ex. APPL'),
+                    dcc.Graph(id='stockHistoryGraph'))),  
+                    
+                ]
 
 @callback(
     Input('stockTickerInput', 'value'),
-    Output('stockHistoryGraph', 'children')
+    Output('stockHistoryGraph', 'figure')
 )
 
-def update_graph():
-    pass
+def update_graph(tickerSymbol):
+    get_stock_info = f'https://www.alphavantage.co/query?function=HISTORICAL_OPTIONS&symbol={tickerSymbol}&apikey={ALPHA_VANTAGE_API_KEY}&datatype=csv'
+    try:
+        df = pd.read_csv(get_stock_info)
+        df['timestamp'] = pd.to_datetime(df['timestamp'])
+        fig = px.line(df, x='timestamp', y='close', title=f'{tickerSymbol} Closing Prices')
+        return fig
+    except:
+        return px.line(title=f'Error loading data for {tickerSymbol}')
 
 if __name__ == '__main__':
     app.run(debug=True)
