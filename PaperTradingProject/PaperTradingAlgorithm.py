@@ -29,26 +29,29 @@ def trading_algo():
 app = Dash()
 
 app.title = 'Stock Trading Dashboard'
-app.layout = [  html.Div(children=(
+app.layout = html.Div([
                     dcc.Input(id='stockTickerInput',type='text',placeholder='Ex. APPL'),
-                    dcc.Graph(id='stockHistoryGraph'))),  
-                    
-                ]
+                    dcc.Graph(id='stockHistoryGraph')
+                    ]) 
 
 @callback(
-    Input('stockTickerInput', 'value'),
-    Output('stockHistoryGraph', 'figure')
+    Output('stockHistoryGraph', 'figure'),
+    Input('stockTickerInput', 'value')
 )
 
 def update_graph(tickerSymbol):
-    get_stock_info = f'https://www.alphavantage.co/query?function=HISTORICAL_OPTIONS&symbol={tickerSymbol}&apikey={ALPHA_VANTAGE_API_KEY}&datatype=csv'
+    get_stock_info_url = f'https://www.alphavantage.co/query?function=TIME_SERIES_MONTHLY&symbol={tickerSymbol}&apikey={ALPHA_VANTAGE_API_KEY}&datatype=csv'
     try:
-        df = pd.read_csv(get_stock_info)
+        df = pd.read_csv(get_stock_info_url)
         df['timestamp'] = pd.to_datetime(df['timestamp'])
         fig = px.line(df, x='timestamp', y='close', title=f'{tickerSymbol} Closing Prices')
         return fig
-    except:
-        return px.line(title=f'Error loading data for {tickerSymbol}')
+    except Exception as e:
+        if df.shape[1] == 1 and 'Thank you for using Alpha Vantage' in df.columsn[0]:
+            print("Rate limit exceeded.")
+        else:
+            print(f'Error fetching data: {e}')
+            return px.line(title=f'Error loading data for {tickerSymbol}')
 
 if __name__ == '__main__':
     app.run(debug=True)
