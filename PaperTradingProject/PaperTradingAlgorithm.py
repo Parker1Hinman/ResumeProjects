@@ -30,7 +30,7 @@ app = Dash()
 
 app.title = 'Stock Trading Dashboard'
 app.layout = html.Div([
-                    dcc.Input(id='stockTickerInput',type='text',placeholder='Ex. APPL', style = {"padding":'5px', 'border-radius':'3px', }),
+                    dcc.Input(id='stockTickerInput',type='text',placeholder='Ex. APPL'),
                     html.Button('Search',id='searchConfirmation', n_clicks=0, style={
         "padding": "5px 10px",
         "borderRadius": "3px",
@@ -42,15 +42,33 @@ app.layout = html.Div([
         "letterSpacing": ".08em",
         "textTransform": "uppercase",
         "position": "relative",
-        "transition": "background-color .6s ease"
+        "transition": "background-color .6s ease",
+        "margin":"5px"
     }
-) ,
+), 
+                    html.Button('Trading Algorithm: On', id='AutoTraderOn/Off', n_clicks=0, style={
+                        "padding": "5px 10px",
+                        "borderRadius": "3px",
+                        "boxShadow": "0px 0px 12px -2px rgba(0,0,0,0.5)",
+                        "lineHeight": "1.25",
+                        "background": "black",
+                        "color": "white",
+                        "fontSize": "16px",
+                        "letterSpacing": ".08em",
+                        "textTransform": "uppercase",
+                        "position": "relative",
+                        "transition": "background-color .6s ease",
+                        "margin":"5px"
+                    }),
+                    dcc.Input(id=''),
                     dcc.Graph(id='stockHistoryGraph')
                     ])
 
 @callback(
     Output('stockHistoryGraph', 'figure'),
+    Output('AutoTraderOn/Off', 'children'),
     Input('searchConfirmation', 'n_clicks'),
+    Input('AutoTraderOn/Off', 'n_clicks'),
     State('stockTickerInput', 'value')
 )
 
@@ -68,5 +86,11 @@ def update_graph(_,tickerSymbol):
             print(f'Error fetching data: {e}')
             return px.line(title=f'Error loading data for {tickerSymbol}')
 
+def auto_trader_button_text(n_clicks):
+    if n_clicks % 2 == 1:
+        return "Trading Algorithm: Off"
+    else:
+        return "Trading Algorithm: On"
+    
 if __name__ == '__main__':
     app.run(debug=True)
