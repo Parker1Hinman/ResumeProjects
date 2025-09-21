@@ -30,16 +30,31 @@ app = Dash()
 
 app.title = 'Stock Trading Dashboard'
 app.layout = html.Div([
-                    dcc.Input(id='stockTickerInput',type='text',placeholder='Ex. APPL'),
+                    dcc.Input(id='stockTickerInput',type='text',placeholder='Ex. APPL', style = {"padding":'5px', 'border-radius':'3px', }),
+                    html.Button('Search',id='searchConfirmation', n_clicks=0, style={
+        "padding": "5px 10px",
+        "borderRadius": "3px",
+        "boxShadow": "0px 0px 12px -2px rgba(0,0,0,0.5)",
+        "lineHeight": "1.25",
+        "background": "black",
+        "color": "white",
+        "fontSize": "16px",
+        "letterSpacing": ".08em",
+        "textTransform": "uppercase",
+        "position": "relative",
+        "transition": "background-color .6s ease"
+    }
+) ,
                     dcc.Graph(id='stockHistoryGraph')
-                    ]) 
+                    ])
 
 @callback(
     Output('stockHistoryGraph', 'figure'),
-    Input('stockTickerInput', 'value')
+    Input('searchConfirmation', 'n_clicks'),
+    State('stockTickerInput', 'value')
 )
 
-def update_graph(tickerSymbol):
+def update_graph(_,tickerSymbol):
     get_stock_info_url = f'https://www.alphavantage.co/query?function=TIME_SERIES_MONTHLY&symbol={tickerSymbol}&apikey={ALPHA_VANTAGE_API_KEY}&datatype=csv'
     try:
         df = pd.read_csv(get_stock_info_url)
@@ -47,7 +62,7 @@ def update_graph(tickerSymbol):
         fig = px.line(df, x='timestamp', y='close', title=f'{tickerSymbol} Closing Prices')
         return fig
     except Exception as e:
-        if df.shape[1] == 1 and 'Thank you for using Alpha Vantage' in df.columsn[0]:
+        if df.shape[1] == 1 and 'Thank you for using Alpha Vantage' in df.columns[0]:
             print("Rate limit exceeded.")
         else:
             print(f'Error fetching data: {e}')
