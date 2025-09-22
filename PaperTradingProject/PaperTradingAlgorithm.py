@@ -150,7 +150,7 @@ app.layout = html.Div([
 )
 def update_UI(_, auto_trader_clicks, purchase_clicks,  tickerSymbol):
     button_text = "Trading Algorithm: On " if auto_trader_clicks % 2 == 1 else "Trading Algorithm: Off"
-
+    confirmation_text = ""
     purchase_style = {'display':'flex','alignItems':'center', 'justifyContent':'center'} if purchase_clicks and purchase_clicks > 0 else {'display':'none'}
     if purchase_clicks and purchase_clicks > 0:
         confirmation_text = ""
