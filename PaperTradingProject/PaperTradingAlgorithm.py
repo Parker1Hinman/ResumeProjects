@@ -24,13 +24,19 @@ os.environ['APCA_API_BASE_URL'] = 'https://paper-api.alpaca.markets'
 
 api = TradingClient(ALPACA_API_KEY, ALPACA_API_KEY_SECRET, paper=True)
 account = api.get_account()
-def purchase(stockTicker,quantity):
-    api.submit_order(
+from alpaca.trading.requests import OrderRequest
+from alpaca.trading.enums import OrderSide, OrderType, TimeInForce
+
+def purchase(stockTicker, quantity):
+    order_data = OrderRequest(
         symbol=stockTicker,
         qty=quantity,
         side=OrderSide.BUY,
+        type=OrderType.MARKET,
         time_in_force=TimeInForce.DAY
     )
+    api.submit_order(order_data)
+
 
 app = Dash()
 
@@ -106,7 +112,8 @@ app.layout = html.Div([
                 "fontSize": "16px",
                 "marginRight": "10px",
                 "width":"120px",
-                "TextAlign":"center"
+                "TextAlign":"center",
+                "margin":"5px"
                 }),
         html.Button("Confirm",id="confirmPurchaseButton", style={"padding": "5px 10px",
                 "borderRadius": "3px",
@@ -119,8 +126,13 @@ app.layout = html.Div([
                 "textTransform": "uppercase",
                 "position": "relative",
                 "margin": "5px",
-                "width":"120px"})
-                ],id="purchaseOptionsPopUp",style={'display':'none'}),
+                "width":"120px"})],id="purchaseOptionsPopUp",style={'display':'none'}),
+    html.Div(id="purchaseConfirmation", style={
+                "textAlign":'center',
+                "marginTop": "10px",
+                "color": "green",
+                "fontWeight": "bold"
+                }),
     dcc.Graph(id='stockHistoryGraph')
 ])
 
@@ -128,17 +140,20 @@ app.layout = html.Div([
     Output('stockHistoryGraph', 'figure'),
     Output('AutoTraderOn/Off', 'children'),
     Output('purchaseOptionsPopUp', 'style'),
-    Output('accountBalanceDisplay', 'children'),
+    Output('currentCashBalance', 'children'),
+    Output('purchaseConfirmation','children', allow_duplicate=True),
     Input('searchConfirmation', 'n_clicks'),
     Input('AutoTraderOn/Off', 'n_clicks'),
     Input('purchaseOptionsButton', 'n_clicks'),
-    State('stockTickerInput', 'value')
+    State('stockTickerInput', 'value'),
+    prevent_initial_call=True
 )
 def update_UI(_, auto_trader_clicks, purchase_clicks,  tickerSymbol):
     button_text = "Trading Algorithm: On " if auto_trader_clicks % 2 == 1 else "Trading Algorithm: Off"
 
     purchase_style = {'display':'flex','alignItems':'center', 'justifyContent':'center'} if purchase_clicks and purchase_clicks > 0 else {'display':'none'}
-    
+    if purchase_clicks and purchase_clicks > 0:
+        confirmation_text = ""
     try:
         balance_text = f"Account Balance: ${float(account.cash):,.2f}"
     except:
@@ -146,7 +161,7 @@ def update_UI(_, auto_trader_clicks, purchase_clicks,  tickerSymbol):
     # Handle empty or missing ticker
     if not tickerSymbol:
         fig = px.line(title='Please enter a ticker symbol.')
-        return fig, button_text, purchase_style, balance_text
+        return fig, button_text, purchase_style, balance_text, confirmation_text
 
     #Plotting data
     try:
@@ -158,20 +173,25 @@ def update_UI(_, auto_trader_clicks, purchase_clicks,  tickerSymbol):
     except Exception as e:
         print(f'Error fetching data: {e}')
         fig = px.line(title=f'Error loading data for {tickerSymbol}')
-    return fig, button_text, purchase_style, balance_text
+    return fig, button_text, purchase_style, balance_text, confirmation_text
 
 @callback(
     Output('purchaseConfirmation','children'),
+    Output('purchaseOptionsPopUp','style', allow_duplicate=True),
     Input('confirmPurchaseButton','n_clicks'),
     State('quantityInput','value'),
-    State('stockTickerInput','value')
+    State('stockTickerInput','value'),
+    prevent_initial_call=True
 )
 
 def confirm_purchase(n_clicks, quantity, ticker):
-    purchase(ticker,quantity)
     if not quantity or not ticker:
         return "Invalid Purchase Criteria"
-    return f"Purchase confirmed: {quantity} shares of {ticker}"
+    try:
+        purchase(ticker,quantity)
+        return f"Purchase confirmed: {quantity} shares of {ticker}", {"display":"none"}
+    except:
+        return "Purchase failed, please check your inputs"
 
 if __name__ == '__main__':
     app.run(debug=True)
