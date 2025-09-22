@@ -2,7 +2,9 @@
 #To/Do connect with stock data
 #To/Do create Trading Algorithm
 
-import alpaca as tradeAPI
+from alpaca.trading.client import TradingClient
+from alpaca.trading.requests import MarketOrderRequest
+from alpaca.trading.enums import OrderSide, TimeInForce
 import os
 from dotenv import load_dotenv
 import datetime
@@ -12,19 +14,23 @@ import pandas as pd
 import plotly.express as px
 
 
-load_dotenv()
+load_dotenv(dotenv_path="ResumeProjects\PaperTradingProject\API_INFO.env")
 
 ALPACA_API_KEY_SECRET = os.getenv('ALPACA_API_KEY_SECRET')
 ALPACA_API_KEY = os.getenv('ALPACA_API_KEY')
 ALPHA_VANTAGE_API_KEY = os.getenv('ALPHA_VANTAGE_API_KEY')
 
-def trading_algo():
-    os.environ['APCA_API_BASE_URL'] = 'https://paper-api.alpaca.markets'
+os.environ['APCA_API_BASE_URL'] = 'https://paper-api.alpaca.markets'
 
-    api = tradeAPI.REST(ALPACA_API_KEY, ALPACA_API_KEY_SECRET, api_version='v2')
-    account = api.get_account()
-
-    return
+api = TradingClient(ALPACA_API_KEY, ALPACA_API_KEY_SECRET, paper=True)
+account = api.get_account()
+def purchase(stockTicker,quantity):
+    api.submit_order(
+        symbol=stockTicker,
+        qty=quantity,
+        side=OrderSide.BUY,
+        time_in_force=TimeInForce.DAY
+    )
 
 app = Dash()
 
@@ -95,6 +101,7 @@ app.layout = html.Div([
         "marginBottom": "10px"
     }),
     html.Div([
+        html.H3(id="currentCashBalance"),
         dcc.Input(id="quantityInput", type='number',placeholder='Enter Quantity:', style={"height": "20px",
                 "fontSize": "16px",
                 "marginRight": "10px",
@@ -121,19 +128,25 @@ app.layout = html.Div([
     Output('stockHistoryGraph', 'figure'),
     Output('AutoTraderOn/Off', 'children'),
     Output('purchaseOptionsPopUp', 'style'),
+    Output('accountBalanceDisplay', 'children'),
     Input('searchConfirmation', 'n_clicks'),
     Input('AutoTraderOn/Off', 'n_clicks'),
     Input('purchaseOptionsButton', 'n_clicks'),
     State('stockTickerInput', 'value')
 )
-def update_UI(_, auto_trader_clicks, purchase_clicks, tickerSymbol):
+def update_UI(_, auto_trader_clicks, purchase_clicks,  tickerSymbol):
     button_text = "Trading Algorithm: On " if auto_trader_clicks % 2 == 1 else "Trading Algorithm: Off"
 
     purchase_style = {'display':'flex','alignItems':'center', 'justifyContent':'center'} if purchase_clicks and purchase_clicks > 0 else {'display':'none'}
+    
+    try:
+        balance_text = f"Account Balance: ${float(account.cash):,.2f}"
+    except:
+        balance_text = "Balance unavailable"
     # Handle empty or missing ticker
     if not tickerSymbol:
         fig = px.line(title='Please enter a ticker symbol.')
-        return fig, button_text, purchase_style
+        return fig, button_text, purchase_style, balance_text
 
     #Plotting data
     try:
@@ -145,16 +158,17 @@ def update_UI(_, auto_trader_clicks, purchase_clicks, tickerSymbol):
     except Exception as e:
         print(f'Error fetching data: {e}')
         fig = px.line(title=f'Error loading data for {tickerSymbol}')
-    return fig, button_text
+    return fig, button_text, purchase_style, balance_text
 
 @callback(
     Output('purchaseConfirmation','children'),
     Input('confirmPurchaseButton','n_clicks'),
-    State('quantityInput','value')
+    State('quantityInput','value'),
     State('stockTickerInput','value')
 )
 
 def confirm_purchase(n_clicks, quantity, ticker):
+    purchase(ticker,quantity)
     if not quantity or not ticker:
         return "Invalid Purchase Criteria"
     return f"Purchase confirmed: {quantity} shares of {ticker}"
